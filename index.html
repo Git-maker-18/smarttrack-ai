@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartTrack AI - Global Supply Chain & Freight Control Tower</title>
+  
+  <!-- CSS Stylesheet (Cache-Busted) -->
+  <link rel="stylesheet" href="styles.css?v=7">
+  
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- High-end Animation Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body>
+  <!-- Removed Custom Cursor as requested -->
+
+  <script>
+    window.onerror = function(message, source, lineno, colno, error) {
+      const errDiv = document.createElement('div');
+      errDiv.style = "position:fixed;top:0;left:0;width:100%;background:red;color:white;z-index:999999;padding:20px;font-family:monospace;white-space:pre-wrap;";
+      errDiv.innerHTML = `<h3>Javascript Error:</h3><b>${message}</b><br>at ${source}:${lineno}:${colno}<br><br>${error ? error.stack : ''}`;
+      document.body.appendChild(errDiv);
+    };
+  </script>
+
+  <!-- App Header & Navigation -->
+  <header class="app-header">
+    <div class="logo-container">
+      <div class="logo-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 21c3 0 4-1 6-1s3 1 6 1 4-1 6-1"/><path d="M19.38 20A11.6 11.6 0 0 0 21 14l-9-4-9 4c0 2.9.94 5.34 2.81 6"/><path d="M12 10V4"/><path d="M12 4l5 3"/>
+        </svg>
+      </div>
+      <div class="logo-text">
+        <h1>SmartTrack AI</h1>
+        <span>AI-POWERED MARITIME LOGISTICS</span>
+      </div>
+    </div>
+
+    <nav class="nav-tabs">
+      <button class="nav-btn active" data-target="view-map">
+        Global Freight Map
+      </button>
+      <button class="nav-btn" data-target="view-analytics">
+        Executive Analytics
+      </button>
+      <button class="nav-btn" data-target="view-playground">
+        ML Playground & XAI
+      </button>
+      <button class="nav-btn" data-target="view-agent">
+        GenAI Agent & Approvals
+      </button>
+      <button class="nav-btn" data-target="view-alerts">
+        AI Alerts & Weather
+      </button>
+    </nav>
+
+    <div class="status-badge magnetic">
+      <div class="pulse-dot"></div>
+      AIS Live Telemetry • Active
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-container">
+    
+    <!-- 1. GLOBAL FREIGHT MAP -->
+    <section id="view-map" class="view-panel active">
+      <div class="map-view-grid">
+        <!-- Map Container -->
+        <div class="glass-card map-card" style="padding: 0; overflow: hidden; position: relative;">
+          <button class="glass-btn" onclick="renderMapMarkers()" style="position: absolute; top: 12px; left: 12px; z-index: 1000; font-size: 0.8rem; padding: 6px 12px; display:flex; gap:6px;">
+            <span>🌍</span> Reset Global View
+          </button>
+          <div id="leaflet-map" style="width: 100%; height: 100%; border-radius: inherit;"></div>
+        </div>
+
+        <!-- Sidebar: Active Fleet -->
+        <div class="glass-card fleet-sidebar-card">
+          <div class="section-header" style="margin-bottom:0;">
+            Active Fleet
+          </div>
+          <div style="margin-top: 14px; margin-bottom: 2px;">
+            <input type="text" id="fleet-search" placeholder="Search vessel..." class="select-custom" style="width: 100%; font-weight: 500;" oninput="fleetSearchQuery = this.value; renderFleetSidebar();" />
+          </div>
+          <div id="fleet-list" class="fleet-list-container"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. AI ALERTS & WEATHER -->
+    <section id="view-alerts" class="view-panel">
+      <h2 class="section-title">Active High-Risk Shipment Disruption Feed</h2>
+      <div id="alerts-feed" style="margin-top:20px;"></div>
+    </section>
+
+    <!-- VIEW 2: EXECUTIVE ANALYTICS -->
+    <section id="view-analytics" class="view-panel">
+      <!-- Combined 8 KPI Cards -->
+      <div class="grid-kpi">
+        <div class="glass-card kpi-card">
+          <div class="kpi-title">Total In-Transit Cargo</div>
+          <div class="kpi-value">$24.7M</div>
+          <div class="kpi-delta up">▲ +3.1% vs last month</div>
+        </div>
+        <div class="glass-card kpi-card">
+          <div class="kpi-title">Active Ocean Vessels</div>
+          <div class="kpi-value">8</div>
+          <div class="kpi-delta up">▲ 8 Global Shipping Lanes</div>
+        </div>
+        <div class="glass-card kpi-card">
+          <div class="kpi-title">At-Risk Cargo Value</div>
+          <div class="kpi-value">$12.3M</div>
+          <div class="kpi-delta down">▼ 2 High-Risk Disruption Alerts</div>
+        </div>
+        <div class="glass-card kpi-card">
+          <div class="kpi-title">Avg ETA to Destination</div>
+          <div class="kpi-value">168 hrs</div>
+          <div class="kpi-delta up">▲ 7.0 Days Avg Voyage</div>
+        </div>
+        <!-- Original Analytics KPIs -->
+        <div class="glass-card kpi-card">
+          <div class="kpi-title">Total Sales Revenue</div>
+          <div class="kpi-value">$36.8M</div>
+        </div>
+        <div class="glass-card kpi-card">
+          <div class="kpi-title">On-Time Delivery Rate</div>
+          <div class="kpi-value">75.8%</div>
+          <div class="kpi-delta up">▲ Model v5 High Accuracy</div>
+        </div>
+        <div class="glass-card kpi-card">
+          <div class="kpi-title">Avg Order Profit</div>
+          <div class="kpi-value">$21.97</div>
+        </div>
+        <div class="glass-card kpi-card">
+          <div class="kpi-title">Total Completed Orders</div>
+          <div class="kpi-value">172,765</div>
+        </div>
+      </div>
+
+      <div class="charts-grid-2">
+        <div class="glass-card">
+          <div class="section-header">Market Region Sales Breakdown</div>
+          <div class="chart-container">
+            <canvas id="chart-market"></canvas>
+          </div>
+        </div>
+        <div class="glass-card">
+          <div class="section-header">Shipping Mode Order Distribution</div>
+          <div class="chart-container">
+            <canvas id="chart-modes"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 3: ML PLAYGROUND & XAI -->
+    <section id="view-playground" class="view-panel">
+      <div class="playground-grid">
+        <div class="glass-card">
+          <div class="section-header">Shipment Parameter Simulator</div>
+          
+          <div class="form-group">
+            <div class="form-label"><span>Shipping Mode</span></div>
+            <select id="p-mode" class="select-custom" style="width:100%;">
+              <option value="Standard Class">Standard Class (SLA: 4 Days)</option>
+              <option value="Second Class">Second Class (SLA: 3 Days)</option>
+              <option value="First Class">First Class (SLA: 2 Days)</option>
+              <option value="Same Day">Same Day (SLA: 0 Days)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <div class="form-label"><span>Order Quantity</span><span id="v-qty">2</span></div>
+            <input type="range" id="p-qty" min="1" max="5" value="2" class="input-slider">
+          </div>
+
+          <div class="form-group">
+            <div class="form-label"><span>Product Unit Price</span><span id="v-price">$150</span></div>
+            <input type="range" id="p-price" min="10" max="500" value="150" step="10" class="input-slider">
+          </div>
+
+          <div class="form-group">
+            <div class="form-label"><span>Discount Rate</span><span id="v-discount">10%</span></div>
+            <input type="range" id="p-discount" min="0" max="0.5" value="0.10" step="0.05" class="input-slider">
+          </div>
+
+          <div style="margin-top:20px;padding:14px;background:rgba(30,41,59,0.5);border-radius:var(--radius-md);font-size:0.9rem;">
+            <div>Sales Amount: <strong id="calc-sales" style="color:#ffffff;">$300.00</strong></div>
+            <div>Order Total (after discount): <strong id="calc-total" style="color:var(--primary-light);">$270.00</strong></div>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <div class="section-header">ML Late Risk Prediction & XAI</div>
+          
+          <div class="gauge-visual-container">
+            <div class="gauge-score-value" id="risk-score-text">38%</div>
+            <div style="font-size:0.85rem;color:var(--text-muted);margin-top:4px;">Predicted SLA Breach Risk Probability</div>
+          </div>
+
+          <div style="margin-top:10px;text-align:center;">
+            Estimated Transit Duration: <strong id="calc-eta" style="color:var(--text-main);">4.2 Days (SLA: 4 Days)</strong>
+          </div>
+
+          <div style="margin-top:24px;">
+            <div class="section-header" style="font-size:0.95rem;">🧠 Explainable AI (XAI) Risk Attribution</div>
+            <div class="xai-bar-group">
+              <div class="xai-item">
+                <div class="xai-label"><span>Shipping Mode SLA Constraint</span><span>44.5%</span></div>
+                <div class="xai-track"><div class="xai-fill" style="width:44.5%;"></div></div>
+              </div>
+              <div class="xai-item">
+                <div class="xai-label"><span>Order Status / Dispatch State</span><span>22.0%</span></div>
+                <div class="xai-track"><div class="xai-fill" style="width:22.0%;"></div></div>
+              </div>
+              <div class="xai-item">
+                <div class="xai-label"><span>Market / Destination Region</span><span>14.2%</span></div>
+                <div class="xai-track"><div class="xai-fill" style="width:14.2%;"></div></div>
+              </div>
+              <div class="xai-item">
+                <div class="xai-label"><span>Unit Price Density</span><span>11.3%</span></div>
+                <div class="xai-track"><div class="xai-fill" style="width:11.3%;"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 4: GENAI AGENT & APPROVAL CENTER -->
+    <section id="view-agent" class="view-panel">
+      <div style="max-width: 960px; margin: 0 auto;">
+        <div class="glass-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid var(--border-glass); padding-bottom: 12px; margin-bottom: 20px;">
+            <div class="section-header" style="border:none; margin:0; padding:0;">GenAI Agent Briefings & Operator Copilot</div>
+            <button class="btn-action btn-approve" style="background:var(--bg-surface); border:1px solid var(--border-glass-bright); color:var(--sky-blue-light); padding:6px 14px; font-size:0.8rem;" onclick="downloadExecutiveCSV()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Export Approval Log (CSV)
+            </button>
+          </div>
+          
+          <div style="margin-bottom:16px;">
+            <label class="form-label">Select Vessel for AI Disruption Audit</label>
+            <select id="copilot-vessel-select" class="select-custom" style="width:100%;"></select>
+          </div>
+
+          <div id="copilot-box"></div>
+
+          <div style="margin-top:20px;">
+            <label class="form-label">Operator Notes / Rationale</label>
+            <input type="text" id="op-notes" class="select-custom" style="width:100%;" placeholder="e.g. Approved priority berth clearance with terminal authority">
+          </div>
+
+          <div class="btn-group-actions">
+            <button class="btn-action btn-approve" onclick="handleOperatorAction('APPROVED')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Approve Action
+            </button>
+            <button class="btn-action btn-override" onclick="handleOperatorAction('OVERRIDDEN')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6"/><path d="M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+              Route Override
+            </button>
+            <button class="btn-action btn-reject" onclick="handleOperatorAction('REJECTED')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Reject Alert
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Toast Popup Notification Container -->
+    <div id="toast-container" style="position: fixed; top: 90px; right: 36px; z-index: 9999; display: flex; flex-direction: column; gap: 12px;"></div>
+
+
+
+  </main>
+
+  <!-- JS Core Engine -->
+  <script src="app.js"></script>
+</body>
+</html>
